@@ -21,7 +21,9 @@ from sklearn.linear_model import (
     RandomizedLasso,  # TODO: add tests and document
 )
 from sklearn.pipeline import FeatureUnion
+
 from eli5 import transform_feature_names
+from eli5.sklearn import ScoreDecreaseFeatureImportances
 
 
 class MyFeatureExtractor(BaseEstimator, TransformerMixin):
@@ -54,6 +56,14 @@ def selection_score_func(X, y):
     (GenericUnivariateSelect(mode='k_best', param=2), ['<NAME2>', '<NAME3>']),
     (SelectFromModel(LogisticRegression('l1', C=0.01, random_state=42)),
      ['<NAME0>', '<NAME2>']),
+    (SelectFromModel(
+        ScoreDecreaseFeatureImportances(
+            LogisticRegression(C=10, random_state=42),
+            cv=3, random_state=42, refit=False,
+        ),
+        threshold=0.04,
+     ),
+     ['<NAME2>', '<NAME3>']),
     (RFE(LogisticRegression(random_state=42), 2),
      ['<NAME1>', '<NAME3>']),
     (RFECV(LogisticRegression(random_state=42)),
